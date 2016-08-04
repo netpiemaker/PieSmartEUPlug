@@ -63,82 +63,81 @@
 	}
 </style>
 
-<center>
-	<span id="data" style="">DISCONNECTED</span>
-	<span id="pos_button">
-		<p id="button" onclick="send()"></p>
-	</span>
-	<img src="src/image/SmartSocketPlug.png" id="device" class="offline"/>
-</center>
+<body onresize="resizeImage()" onload="resizeImage()">
+	<center>
+		<span id="data" style="">DISCONNECTED</span>
+		<span id="pos_button">
+			<p id="button" onclick="send()"></p>
+		</span>
+		<img src="src/image/SmartSocketPlug.png" id="device" class="offline"/>
+	</center>
+<body>
 
 <script>
 	var parameters_string = location.hash.substring(1).split(':');
-	var appid,appkey,appsecret;
 	if (parameters_string.length==3) {
-		appid = parameters_string[0];
-		appkey = parameters_string[1];
-		appsecret = parameters_string[2];
+		const APPID     = parameters_string[0];
+		const APPKEY    = parameters_string[1];
+		const APPSECRET = parameters_string[2];
+		const ALIAS     = "smarteuplughtml"; 
+
+		var state = 0;
+		var online_status = false;
+	  
+		var microgear = Microgear.create({
+			key: APPKEY,
+			secret: APPSECRET,
+			alias : ALIAS        /*  optional  */
+		});
+
+		function send(){
+			if(online_status){
+				if(state){
+					microgear.chat("smartsocketeuplug","1");
+				}else{
+					microgear.chat("smartsocketeuplug","0");
+				}
+			}
+		}
+		
+		microgear.on('message',function(topic,msg) {
+			if(msg==1){
+				document.getElementById("device").className = "online_on";
+				state=0;
+			}else if(msg==0){
+				document.getElementById("device").className = "online_off";
+				state=1;
+			}
+		});
+
+		microgear.on('connected', function() {
+			microgear.setAlias(ALIAS);    /* alias can be renamed anytime with this function */
+			microgear.subscribe("/smartsocketeuplug/state");
+			microgear.chat("smartsocketeuplug","?");
+			document.getElementById("data").innerHTML = "CONNECTED";
+			document.getElementById("data").style.color = "#44a90f";
+			online_status = true;
+		});
+
+		microgear.on('disconnected', function() {
+			document.getElementById("data").innerHTML = "DISCONNECTED";
+			document.getElementById("data").style.color = "#b9b9b9";
+			online_status = false;
+		});
+
+		microgear.on('present', function(event) {
+			console.log(event);
+		});
+
+		microgear.on('absent', function(event) {
+			console.log(event);
+		});
+
+		microgear.connect(APPID);
+
 	}else{
 		alert('appid or auth invalid<br>https://'+window.location.host+window.location.pathname+'#APPID:KEY:SECRET');
 	}
-	const APPID     = appid;
-	const APPKEY    = appkey;
-	const APPSECRET = appsecret;
-	const ALIAS     = "smarteuplughtml"; 
-
-	var state = 0;
-	var online_status = false;
-  
-    var microgear = Microgear.create({
-        key: APPKEY,
-        secret: APPSECRET,
-        alias : ALIAS        /*  optional  */
-    });
-
-	function send(){
-		if(online_status){
-			if(state){
-				microgear.chat("smartsocketeuplug","1");
-			}else{
-				microgear.chat("smartsocketeuplug","0");
-			}
-		}
-	}
-	
-    microgear.on('message',function(topic,msg) {
-		if(msg==1){
-			document.getElementById("device").className = "online_on";
-			state=0;
-		}else if(msg==0){
-			document.getElementById("device").className = "online_off";
-			state=1;
-		}
-    });
-
-    microgear.on('connected', function() {
-        microgear.setAlias(ALIAS);    /* alias can be renamed anytime with this function */
-		microgear.subscribe("/smartsocketeuplug/state");
-		microgear.chat("smartsocketeuplug","?");
-        document.getElementById("data").innerHTML = "CONNECTED";
-		document.getElementById("data").style.color = "#44a90f";
-		online_status = true;
-    });
-
-    microgear.on('disconnected', function() {
-        document.getElementById("data").innerHTML = "DISCONNECTED";
-		document.getElementById("data").style.color = "#b9b9b9";
-		online_status = false;
-    });
-
-    microgear.on('present', function(event) {
-        console.log(event);
-    });
-
-    microgear.on('absent', function(event) {
-        console.log(event);
-    });
-
-    microgear.connect(APPID);
 
 	/*******************************************************************************************************/
 	var windowHeight = window.innerHeight;

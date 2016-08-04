@@ -1,0 +1,173 @@
+<script src="https://cdn.netpie.io/microgear.js"></script>
+<style>
+	body {
+		background-color: #7ea0ef;
+		margin: 0;
+		padding: 0;
+	}
+	.online_on {
+		background: rgba(111,0,255,1);
+		background: -moz-linear-gradient(left, rgba(111,0,255,1) 0%, rgba(111,0,255,1) 45%, rgba(3,237,38,1) 55%, rgba(3,237,38,1) 100%);
+		background: -webkit-gradient(left top, right top, color-stop(0%, rgba(111,0,255,1)), color-stop(45%, rgba(111,0,255,1)), color-stop(55%, rgba(3,237,38,1)), color-stop(100%, rgba(3,237,38,1)));
+		background: -webkit-linear-gradient(left, rgba(111,0,255,1) 0%, rgba(111,0,255,1) 45%, rgba(3,237,38,1) 55%, rgba(3,237,38,1) 100%);
+		background: -o-linear-gradient(left, rgba(111,0,255,1) 0%, rgba(111,0,255,1) 45%, rgba(3,237,38,1) 55%, rgba(3,237,38,1) 100%);
+		background: -ms-linear-gradient(left, rgba(111,0,255,1) 0%, rgba(111,0,255,1) 45%, rgba(3,237,38,1) 55%, rgba(3,237,38,1) 100%);
+		background: linear-gradient(to right, rgba(111,0,255,1) 0%, rgba(111,0,255,1) 45%, rgba(3,237,38,1) 55%, rgba(3,237,38,1) 100%);
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6f00ff', endColorstr='#03ed26', GradientType=1 );
+	}
+	.online_off {
+		background: rgba(3,237,38,1);
+		background: -moz-linear-gradient(left, rgba(3,237,38,1) 0%, rgba(3,237,38,1) 100%);
+		background: -webkit-gradient(left top, right top, color-stop(0%, rgba(3,237,38,1)), color-stop(100%, rgba(3,237,38,1)));
+		background: -webkit-linear-gradient(left, rgba(3,237,38,1) 0%, rgba(3,237,38,1) 100%);
+		background: -o-linear-gradient(left, rgba(3,237,38,1) 0%, rgba(3,237,38,1) 100%);
+		background: -ms-linear-gradient(left, rgba(3,237,38,1) 0%, rgba(3,237,38,1) 100%);
+		background: linear-gradient(to right, rgba(3,237,38,1) 0%, rgba(3,237,38,1) 100%);
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#03ed26', endColorstr='#03ed26', GradientType=1 );
+	}
+	
+	.offline {
+		background: rgba(237,237,237,1);
+		background: -moz-linear-gradient(left, rgba(237,237,237,1) 0%, rgba(237,237,237,1) 100%);
+		background: -webkit-gradient(left top, right top, color-stop(0%, rgba(237,237,237,1)), color-stop(100%, rgba(237,237,237,1)));
+		background: -webkit-linear-gradient(left, rgba(237,237,237,1) 0%, rgba(237,237,237,1) 100%);
+		background: -o-linear-gradient(left, rgba(237,237,237,1) 0%, rgba(237,237,237,1) 100%);
+		background: -ms-linear-gradient(left, rgba(237,237,237,1) 0%, rgba(237,237,237,1) 100%);
+		background: linear-gradient(to right, rgba(237,237,237,1) 0%, rgba(237,237,237,1) 100%);
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ededed', endColorstr='#ededed', GradientType=1 );
+	}
+	#device {
+		text-align: center;
+		z-index:99;
+	}
+	#data {
+		text-align: center;
+		position: absolute;
+		z-index: 100;
+		margin-top: 40px;
+		font-weight: bold;
+		color: #b9b9b9;
+	}
+	#pos_button {
+		width: 300px;
+		height: 200px;
+		z-index: 110;
+		position: absolute;
+		margin-top: 480px;
+		text-align: center;
+	}
+	#button {
+		width: 100px;
+		height: 100px;
+		margin: 0 auto;
+	}
+</style>
+
+<center>
+	<span id="data" style="">DISCONNECTED</span>
+	<span id="pos_button">
+		<p id="button" onclick="send()"></p>
+	</span>
+	<img src="src/image/SmartSocketPlug.png" id="device" class="offline"/>
+</center>
+
+<script>
+	var parameters_string = location.hash.substring(1).split(':');
+	var appid,appkey,appsecret;
+	if (parameters_string.length==3) {
+		appid = parameters_string[0];
+		appkey = parameters_string[1];
+		appsecret = parameters_string[2];
+	}else{
+		alert('appid or auth invalid<br>https://'+window.location.host+window.location.pathname+'#APPID:KEY:SECRET');
+	}
+	const APPID     = appid;
+	const APPKEY    = appkey;
+	const APPSECRET = appsecret;
+	const ALIAS     = "smarteuplughtml"; 
+
+	var state = 0;
+	var online_status = false;
+  
+    var microgear = Microgear.create({
+        key: APPKEY,
+        secret: APPSECRET,
+        alias : ALIAS        /*  optional  */
+    });
+
+	function send(){
+		if(online_status){
+			if(state){
+				microgear.chat("smartsocketeuplug","1");
+			}else{
+				microgear.chat("smartsocketeuplug","0");
+			}
+		}
+	}
+	
+    microgear.on('message',function(topic,msg) {
+		if(msg==1){
+			document.getElementById("device").className = "online_on";
+			state=0;
+		}else if(msg==0){
+			document.getElementById("device").className = "online_off";
+			state=1;
+		}
+    });
+
+    microgear.on('connected', function() {
+        microgear.setAlias(ALIAS);    /* alias can be renamed anytime with this function */
+		microgear.subscribe("/smartsocketeuplug/state");
+		microgear.chat("smartsocketeuplug","?");
+        document.getElementById("data").innerHTML = "CONNECTED";
+		document.getElementById("data").style.color = "#44a90f";
+		online_status = true;
+    });
+
+    microgear.on('disconnected', function() {
+        document.getElementById("data").innerHTML = "DISCONNECTED";
+		document.getElementById("data").style.color = "#b9b9b9";
+		online_status = false;
+    });
+
+    microgear.on('present', function(event) {
+        console.log(event);
+    });
+
+    microgear.on('absent', function(event) {
+        console.log(event);
+    });
+
+    microgear.connect(APPID);
+
+	/*******************************************************************************************************/
+	var windowHeight = window.innerHeight;
+	var windowWidth = window.innerWidth;
+	var deviceHeight = document.getElementById("device").height;
+	var deviceWidth = document.getElementById("device").width;
+
+	var sizeWidth = windowWidth/deviceWidth;
+	var sizeHeight = windowHeight/deviceHeight;
+	var size = Math.min(sizeWidth,sizeHeight);
+	deviceWidth = deviceWidth*size;
+	deviceHeight = deviceHeight*size;
+	var posText = 40*size;
+	var sizeFont = 20*size;
+	var posbuttonHeight = 100*size;
+	var posbuttonMarginTop = 480*size;
+	
+	document.getElementById("device").style.width = deviceWidth+"px";
+	document.getElementById("device").style.height = deviceHeight+"px";
+	
+	document.getElementById("data").style.width = deviceWidth+"px";
+	document.getElementById("data").style.marginTop = posText+"px";
+	document.getElementById("data").style.fontSize = sizeFont+"px";
+	
+	document.getElementById("pos_button").style.width = deviceWidth+"px";
+	document.getElementById("pos_button").style.height = posbuttonHeight+"px";
+	document.getElementById("pos_button").style.marginTop = posbuttonMarginTop+"px";
+	document.getElementById("button").style.width = posbuttonHeight+"px";
+	document.getElementById("button").style.height = posbuttonHeight+"px";
+	
+	
+</script>

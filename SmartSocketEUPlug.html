@@ -140,33 +140,34 @@
 	}
 
 	/*******************************************************************************************************/
-	var windowHeight = window.innerHeight;
-	var windowWidth = window.innerWidth;
-	var deviceHeight = 700;
-	var deviceWidth = 474;
-
-	var sizeWidth = windowWidth/deviceWidth;
-	var sizeHeight = windowHeight/deviceHeight;
-	var size = Math.min(sizeWidth,sizeHeight);
-	deviceWidth = deviceWidth*size;
-	deviceHeight = deviceHeight*size;
-	var posText = 40*size;
-	var sizeFont = 20*size;
-	var posbuttonHeight = 100*size;
-	var posbuttonMarginTop = 480*size;
+	function resizeImage(){
+		var windowHeight = window.innerHeight;
+		var windowWidth = window.innerWidth;
+		var deviceHeight = 700;
+		var deviceWidth = 474;
 	
-	document.getElementById("device").style.width = deviceWidth+"px";
-	document.getElementById("device").style.height = deviceHeight+"px";
-	
-	document.getElementById("data").style.width = deviceWidth+"px";
-	document.getElementById("data").style.marginTop = posText+"px";
-	document.getElementById("data").style.fontSize = sizeFont+"px";
-	
-	document.getElementById("pos_button").style.width = deviceWidth+"px";
-	document.getElementById("pos_button").style.height = posbuttonHeight+"px";
-	document.getElementById("pos_button").style.marginTop = posbuttonMarginTop+"px";
-	document.getElementById("button").style.width = posbuttonHeight+"px";
-	document.getElementById("button").style.height = posbuttonHeight+"px";
-	
+		var sizeWidth = windowWidth/deviceWidth;
+		var sizeHeight = windowHeight/deviceHeight;
+		var size = Math.min(sizeWidth,sizeHeight);
+		deviceWidth = deviceWidth*size;
+		deviceHeight = deviceHeight*size;
+		var posText = 40*size;
+		var sizeFont = 20*size;
+		var posbuttonHeight = 100*size;
+		var posbuttonMarginTop = 480*size;
+		
+		document.getElementById("device").style.width = deviceWidth+"px";
+		document.getElementById("device").style.height = deviceHeight+"px";
+		
+		document.getElementById("data").style.width = deviceWidth+"px";
+		document.getElementById("data").style.marginTop = posText+"px";
+		document.getElementById("data").style.fontSize = sizeFont+"px";
+		
+		document.getElementById("pos_button").style.width = deviceWidth+"px";
+		document.getElementById("pos_button").style.height = posbuttonHeight+"px";
+		document.getElementById("pos_button").style.marginTop = posbuttonMarginTop+"px";
+		document.getElementById("button").style.width = posbuttonHeight+"px";
+		document.getElementById("button").style.height = posbuttonHeight+"px";
+	}
 	
 </script>

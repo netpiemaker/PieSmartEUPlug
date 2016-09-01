@@ -75,12 +75,12 @@
 
 <script>
 	var parameters_string = location.hash.substring(1).split(':');
-	if (parameters_string.length==3) {
+	if (parameters_string.length==4) {
 		const APPID     = parameters_string[0];
 		const APPKEY    = parameters_string[1];
 		const APPSECRET = parameters_string[2];
 		const ALIAS     = "smarteuplughtml"; 
-
+		var devicename  = parameters_string[3];
 		var state = 0;
 		var online_status = false;
 	  
@@ -93,9 +93,9 @@
 		function send(){
 			if(online_status){
 				if(state){
-					microgear.chat("smartsocketeuplug","1");
+					microgear.chat(devicename,"1");
 				}else{
-					microgear.chat("smartsocketeuplug","0");
+					microgear.chat(devicename,"0");
 				}
 			}
 		}
@@ -112,8 +112,8 @@
 
 		microgear.on('connected', function() {
 			microgear.setAlias(ALIAS);    /* alias can be renamed anytime with this function */
-			microgear.subscribe("/smartsocketeuplug/state");
-			microgear.chat("smartsocketeuplug","?");
+			microgear.subscribe("/"+devicename+"/state");
+			microgear.chat(devicename,"?");
 			document.getElementById("data").innerHTML = "CONNECTED";
 			document.getElementById("data").style.color = "#44a90f";
 			online_status = true;
@@ -136,7 +136,7 @@
 		microgear.connect(APPID);
 
 	}else{
-		alert('appid or auth invalid<br>https://'+window.location.host+window.location.pathname+'#APPID:KEY:SECRET');
+		alert('appid or auth invalid<br>https://'+window.location.host+window.location.pathname+'#APPID:KEY:SECRET:DEVICENAME');
 	}
 
 	/*******************************************************************************************************/
